@@ -78,7 +78,27 @@ function readManifest() {
 // If there are no issues, "pass" should be true and "findings" empty.
 // ============================================================
 function buildPrompt(diff, manifest) {
-  return `TODO: write your prompt here.
+  return `You are a design system QA reviewer. Your job is to review a pull request diff and decide whether it complies with the design system described in the component manifest below.
+
+The manifest is the single source of truth. Base every check ONLY on what the manifest actually says — do not invent, assume, or import rules that are not present in it. Specifically, check the diff against:
+- The approved components and their approved variants (anything used that is not approved is a violation).
+- The deprecated variants (using one is a violation; cite the deprecation note and its suggested replacement).
+- The approved tokens / scales (e.g. color tokens, spacing scale) — values outside them are violations.
+- Every entry in the manifest's "rules" array.
+
+Review scope:
+- Only flag lines that appear as additions in the diff (lines beginning with "+", excluding the "+++" file headers). Do not flag context lines, removed lines, or code that is not in the diff.
+- For each finding, report: the file it occurs in, the exact line or code snippet, the issue, and the reasoning — and in the reasoning cite the specific manifest rule, deprecated variant note, or approved list that it breaks.
+
+Respond with ONLY valid JSON, no other text, no markdown fences, in exactly this shape:
+{
+  "pass": true or false,
+  "findings": [
+    { "file": "...", "line": "...", "issue": "...", "reasoning": "..." }
+  ]
+}
+
+Set "pass" to false if there is at least one finding, otherwise true. If there are no issues, return "pass": true and an empty "findings" array.
 
 Manifest:
 ${manifest}
